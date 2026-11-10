@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% block content %}
+<h1 class="h4 mb-3">Tenants</h1>
+<form method="post" class="row g-2 mb-4">
+ <div class="col-md-3"><input name="full_name" class="form-control" placeholder="Full name" required></div>
+ <div class="col-md-2"><input name="reg_no" class="form-control" placeholder="Reg. no"></div>
+ <div class="col-md-2"><input name="username" class="form-control" placeholder="Username" required></div>
+ <div class="col-md-2"><input name="email" type="email" class="form-control" placeholder="Email"></div>
+ <div class="col-md-2"><input name="phone" class="form-control" placeholder="Phone"></div>
+ <div class="col-md-2"><select name="room_id" class="form-select"><option value="">Room...</option>
+  {% for r in rooms %}<option value="{{ r.id }}">{{ r.number }}</option>{% endfor %}</select></div>
+ <div class="col-md-2"><input name="password" class="form-control" placeholder="Password (default: username)"></div>
+ <div class="col-md-2"><button class="btn btn-primary w-100">Register tenant</button></div></form>
+<form method="get" class="row g-2 mb-3">
+ <div class="col-md-6"><input name="q" value="{{ q }}" class="form-control" placeholder="Search by name, reg. no, phone or room..."></div>
+ <div class="col-md-2"><button class="btn btn-primary w-100">Search</button></div>
+ {% if q %}<div class="col-md-2"><a href="{{ url_for('tenants') }}" class="btn btn-outline-secondary w-100">Clear</a></div>{% endif %}
+</form> 
+<table class="table table-sm bg-white"><tr><th>Name</th><th>Username</th><th>Reg. no</th><th>Room</th><th>Phone</th><th class="text-end">Balance</th><th>Status</th><th>Password</th><th>Delete</th></tr>
+{% for t in tenants %}<tr><td>{{ t.user.full_name }}</td><td>{{ t.user.username }}</td><td>{{ t.reg_no }}</td>
+ <td>{{ t.room.number if t.room else '-' }}</td><td>{{ t.user.phone }}</td><td class="text-end">{{ '{:,.2f}'.format(t.balance) }}</td>
+ <td>{% if t.active %}<form method="post" action="{{ url_for('checkout', tid=t.id) }}" onsubmit="return confirm('Check this tenant out?')">
+  <button class="btn btn-sm btn-outline-secondary">Check out</button></form>{% else %}<form method="post" action="{{ url_for('reactivate', tid=t.id) }}" class="d-flex gap-1">
+  <select name="room_id" class="form-select form-select-sm" style="width:90px">
+   {% for r in rooms %}<option value="{{ r.id }}" {{ 'selected' if t.room_id == r.id }}>{{ r.number }}</option>{% endfor %}</select>
+  <button class="btn btn-sm btn-outline-primary">Re-activate</button></form>{% endif %}</td>
+ <td><form method="post" action="{{ url_for('reset_password', tid=t.id) }}" onsubmit="return confirm('Generate a new temporary password?')">
+  <button class="btn btn-sm btn-outline-danger">Reset</button></form></td> 
+ <td><form method="post" action="{{ url_for('delete_tenant', tid=t.id) }}" onsubmit="return confirm('Delete this tenant permanently?')">
+  <button class="btn btn-sm btn-danger">Delete</button></form></td></tr>
+{% else %}<tr><td colspan="9">{{ 'No tenant matches your search.' if q else 'No tenants yet.' }}</td></tr>{% endfor %}</table>{% endblock %}

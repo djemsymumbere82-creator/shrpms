@@ -1,0 +1,29 @@
+{% extends "base.html" %}{% block content %}
+<h1 class="h4 mb-3">Rent and utility billing</h1>
+<form method="post" class="card card-body mb-4">
+ <div class="row g-3">
+  <div class="col-md-6"><label class="form-label">Tenant</label>
+   <select name="tenant_id" class="form-select" required><option value="">Select tenant...</option>
+   {% for t in tenants %}<option value="{{ t.id }}">{{ t.user.full_name }} ({{ t.room.number if t.room else 'no room' }})</option>{% endfor %}</select></div>
+  <div class="col-md-3"><label class="form-label">Month</label>
+   <input name="period" type="month" value="{{ this_month }}" class="form-control" required></div>
+  <div class="col-md-3"><label class="form-label">Late fee (KES)</label>
+   <input name="late_fee" type="number" step="0.01" min="0" value="0" class="form-control"></div>
+  <div class="col-md-3"><label class="form-label">Water units</label>
+   <input name="water_units" type="number" step="0.01" class="form-control"></div>
+  <div class="col-md-3"><label class="form-label">Water rate (KES per unit)</label>
+   <input name="water_rate" type="number" step="0.01" class="form-control"></div>
+  <div class="col-md-3"><label class="form-label">Electricity units (kWh)</label>
+   <input name="elec_units" type="number" step="0.01" class="form-control"></div>
+  <div class="col-md-3"><label class="form-label">Electricity rate (KES per unit)</label>
+   <input name="elec_rate" type="number" step="0.01" class="form-control"></div>
+ </div>
+ <button class="btn btn-primary mt-3 align-self-start">Generate bill</button>
+</form>
+<table class="table table-sm bg-white"><tr><th>Month</th><th>Tenant</th><th>Rent</th><th>Water</th><th>Electricity</th><th>Late fee</th><th class="text-end">Total</th><th>Status</th></tr>
+{% for b in bills %}<tr><td>{{ b.period }}</td><td>{{ b.tenant.user.full_name }}</td><td>{{ '{:,.0f}'.format(b.rent) }}</td>
+ <td>{{ '{:,.0f}'.format(b.water_units*b.water_rate) }}</td><td>{{ '{:,.0f}'.format(b.elec_units*b.elec_rate) }}</td>
+ <td>{{ '{:,.0f}'.format(b.late_fee or 0) }}</td>
+ <td class="text-end">{{ '{:,.2f}'.format(b.total) }}</td>
+ <td>{% if b.status == 'Paid' %}<span class="badge bg-success">Paid</span>{% elif b.status == 'Partial' %}<span class="badge bg-warning text-dark">Partial</span>{% else %}<span class="badge bg-danger">Unpaid</span>{% endif %}</td></tr>
+{% else %}<tr><td colspan="8">No bills yet.</td></tr>{% endfor %}</table>{% endblock %}
