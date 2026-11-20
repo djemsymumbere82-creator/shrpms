@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block content %}
+<h1 class="h4 mb-3">Dashboard</h1>
+<div class="row g-3 mb-4">
+ <div class="col-md-4"><div class="card card-body"><div class="stat">KES {{ '{:,.0f}'.format(s.revenue) }}</div>Revenue collected</div></div>
+ <div class="col-md-4"><div class="card card-body"><div class="stat due">KES {{ '{:,.0f}'.format(s.pending) }}</div>Pending balances</div></div>
+ <div class="col-md-4"><div class="card card-body"><div class="stat">{{ s.occupancy }}%</div>Occupancy ({{ s.occupied }}/{{ s.rooms }} rooms)</div></div>
+</div>
+<div class="d-flex justify-content-between align-items-center mb-2">
+ <h2 class="h5 mb-0">Tenants with a balance</h2>
+ <form method="post" action="{{ url_for('remind') }}"><button class="btn btn-sm btn-primary">Send reminders</button></form></div>
+<table class="table table-sm bg-white"><tr><th>Tenant</th><th>Room</th><th class="text-end">Balance (KES)</th></tr>
+{% for t in debtors %}<tr><td>{{ t.user.full_name }}</td><td>{{ t.room.number if t.room else '-' }}</td>
+ <td class="text-end due">{{ '{:,.2f}'.format(t.balance) }}</td></tr>
+{% else %}<tr><td colspan="3">Everyone is up to date.</td></tr>{% endfor %}</table>{% endblock %}

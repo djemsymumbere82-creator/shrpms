@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block content %}
+<h1 class="h4 mb-1">Hello, {{ t.user.full_name }}</h1>
+<p>Room {{ t.room.number if t.room else '-' }}</p>
+<div class="card card-body mb-4"><div class="stat {{ 'due' if t.balance > 0 }}">KES {{ '{:,.2f}'.format(t.balance) }}</div>Outstanding balance</div>
+<h2 class="h5">Bills</h2>
+<table class="table table-sm bg-white"><tr><th>Month</th><th>Rent</th><th>Water</th><th>Electricity</th><th>Late fee</th><th class="text-end">Total</th><th>Status</th></tr>
+{% for b in t.bills %}<tr><td>{{ b.period }}</td><td>{{ '{:,.0f}'.format(b.rent) }}</td><td>{{ '{:,.0f}'.format(b.water_units*b.water_rate) }}</td>
+ <td>{{ '{:,.0f}'.format(b.elec_units*b.elec_rate) }}</td>
+ <td>{{ '{:,.0f}'.format(b.late_fee or 0) }}</td>
+ <td class="text-end">{{ '{:,.2f}'.format(b.total) }}</td>
+ <td>{% if b.status == 'Paid' %}<span class="badge bg-success">Paid</span>{% elif b.status == 'Partial' %}<span class="badge bg-warning text-dark">Partial</span>{% else %}<span class="badge bg-danger">Unpaid</span>{% endif %}</td></tr>
+{% else %}<tr><td colspan="7">No bills yet.</td></tr>{% endfor %}</table>
+<h2 class="h5">Payments and receipts</h2>
+<table class="table table-sm bg-white"><tr><th>Receipt</th><th>Date</th><th class="text-end">Amount</th><th></th></tr>
+{% for p in t.payments %}<tr><td>{{ p.receipt_no }}</td><td>{{ p.paid_on }}</td><td class="text-end">{{ '{:,.2f}'.format(p.amount) }}</td>
+ <td><a href="{{ url_for('receipt', pid=p.id) }}">Download PDF</a></td></tr>
+{% else %}<tr><td colspan="4">No payments yet.</td></tr>{% endfor %}</table>{% endblock %}

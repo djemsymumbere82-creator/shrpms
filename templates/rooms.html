@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block content %}
+<h1 class="h4 mb-3">Rooms</h1>
+<form method="post" class="row g-2 mb-4">
+ <div class="col-md-3"><input name="number" class="form-control" placeholder="Room number" required></div>
+ <div class="col-md-3"><input name="rate" type="number" step="0.01" class="form-control" placeholder="Monthly rent" required></div>
+ <div class="col-md-3"><input name="deposit" type="number" step="0.01" class="form-control" placeholder="Deposit"></div>
+ <div class="col-md-3"><button class="btn btn-primary w-100">Add room</button></div></form>
+<table class="table table-sm bg-white"><tr><th>Room</th><th>Monthly rent</th><th>Deposit</th><th>Occupants</th><th>Edit</th></tr>
+{% for r in rooms %}<tr><td>{{ r.number }}</td><td>{{ '{:,.0f}'.format(r.monthly_rate) }}</td>
+ <td>{{ '{:,.0f}'.format(r.deposit) }}</td><td>{{ r.tenants|selectattr('active')|list|length }}</td>
+ <td><div class="d-flex gap-1">
+  <form method="post" action="{{ url_for('room_edit', rid=r.id) }}" class="d-flex gap-1">
+   <input name="rate" type="number" step="0.01" value="{{ r.monthly_rate }}" class="form-control form-control-sm" style="width:110px">
+   <input name="deposit" type="number" step="0.01" value="{{ r.deposit }}" class="form-control form-control-sm" style="width:110px">
+   <button class="btn btn-sm btn-primary">Save</button></form>
+  <form method="post" action="{{ url_for('room_delete', rid=r.id) }}" onsubmit="return confirm('Delete this room?')">
+   <button class="btn btn-sm btn-outline-danger">Delete</button></form></div></td></tr>
+{% else %}<tr><td colspan="5">No rooms yet. Add your first room above.</td></tr>{% endfor %}</table>{% endblock %}
